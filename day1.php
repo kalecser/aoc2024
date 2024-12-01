@@ -1,34 +1,49 @@
 <?php
 
-function calculateDistance(string $input, bool $phase_two=false): int {
-    $distances_a = [];
-    $distances_b = [];
-
-    foreach (explode("\n", $input) as $line) {
-        $components = explode('   ', $line);
-        $distances_a[] = $components[0];
-        $distances_b[] = $components[1];
-    }
-
-    sort($distances_a);
-    sort($distances_b);
-
+function solve(string $input, bool $phase_two=false): int {
+    list($left, $right) = parse_left_right_array($input);
     if ($phase_two) {
-        $distance_b_count_by_value = array_count_values($distances_b);
+        return calculate_phase_two($left, $right);
+    } else {
+        return calculate_phase_one($left, $right);
     }
+}
+
+function calculate_phase_one(array $left, array $right): int|float {
+    sort($left);
+    sort($right);
 
     $result = 0;
-    for($i =0; $i < count($distances_a); $i++) {
-        if ($phase_two) {
-            $factor = $distance_b_count_by_value[$distances_a[$i]] ?? 0;
-            $result += $distances_a[$i] * $factor;
-            continue;
-        }
-
-        $result += (abs($distances_a[$i] - $distances_b[$i]));
+    for ($i = 0; $i < count($left); $i++) {
+        $result += (abs($left[$i] - $right[$i]));
     }
 
     return $result;
+}
+
+function calculate_phase_two(array $left, array $right): int|float {
+    $right_count_by_value = array_count_values($right);
+
+    $result = 0;
+    for ($i = 0; $i < count($left); $i++) {
+            $factor = $right_count_by_value[$left[$i]] ?? 0;
+            $result += $left[$i] * $factor;
+    }
+
+    return $result;
+}
+
+function parse_left_right_array(string $input): array {
+    $left = [];
+    $right = [];
+
+    foreach (explode("\n", $input) as $line) {
+        $components = explode('   ', $line);
+        $left[] = $components[0];
+        $right[] = $components[1];
+    }
+
+    return array($left, $right);
 }
 
 $sample_input = <<<EOD
@@ -1043,8 +1058,10 @@ $input =<<<EOD
 38235   16463
 EOD;
 
-echo 'phase 1 sample: '. calculateDistance($sample_input) . "\n";
-echo 'phase 1: '. calculateDistance($input) . "\n";
+list($left, $right) = parse_left_right_array($input);
 
-echo 'phase 2 sample: '. calculateDistance($sample_input, phase_two: true) . "\n";
-echo 'phase 2: '. calculateDistance($input, phase_two: true) . "\n";
+echo 'phase 1 sample expected: 11, actual: '. solve($sample_input) . "\n";
+echo 'phase 1 full expected: 1579939, actual:'. solve($input) . "\n";
+
+echo 'phase 2 sample expected: 31, actual: '. solve($sample_input, phase_two: true) . "\n";
+echo 'phase 2 full expected: 20351745 actual: '. solve($input, phase_two: true) . "\n";
