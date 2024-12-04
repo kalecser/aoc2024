@@ -12,7 +12,7 @@ class Day4 {
 		
 		System.out.println("Sample phase two result, expected: 9, actual: " + countXmas2(parse(sample2)));
 		
-		System.out.println("Actual phase two result, expected: ?, actual: " + countXmas2(parse(input)));
+		System.out.println("Actual phase two result, expected: 1974, actual: " + countXmas2(parse(input)));
 		
 	}
 	
@@ -21,15 +21,22 @@ class Day4 {
 		
 		for(int line =0; line < input.length - 2; line++) {
 			for (int column = 0; column < input[line].length - 2; column++) {
-				var candidate = new char[]{
+				var xShapedSlice = new char[]{
 					input[line][column], input[line][column + 2],
 					input[line + 1][column + 1],
 					input[line + 2][column], input[line + 2][column + 2]};
+				
+				/*
+					All possible combinations for the "two MAS in the shape of an X"
+					M.S S.M S.S M.M
+					.A. .A. .A. .A.
+					M.S S.M M.M S.S
+				*/
 				boolean isXmas = 
-					Arrays.equals(candidate,"MSAMS".toCharArray()) ||
-					Arrays.equals(candidate,"SMASM".toCharArray()) ||
-					Arrays.equals(candidate,"SSAMM".toCharArray()) ||
-					Arrays.equals(candidate,"MMASS".toCharArray());
+					Arrays.equals(xShapedSlice,"MSAMS".toCharArray()) ||
+					Arrays.equals(xShapedSlice,"SMASM".toCharArray()) ||
+					Arrays.equals(xShapedSlice,"SSAMM".toCharArray()) ||
+					Arrays.equals(xShapedSlice,"MMASS".toCharArray());
 				
 				if (isXmas)	result += 1;
 			}
@@ -44,7 +51,11 @@ class Day4 {
 		for(int line =0; line < input.length; line++) {
 			for (int column = 0; column < input[line].length; column++) {
 				
-				if ((input[line].length - column) > 3) {
+				boolean fitHorizontal = (input[line].length - column) > 3;
+				boolean fitVertical = input[line].length - line > 3;
+				var fitHorizontalBackward = column >=3;
+				
+				if (fitHorizontal) {
 					var horizontal = new char[] {
 						input[line][column + 0], 
 						input[line][column + 1], 
@@ -56,7 +67,7 @@ class Day4 {
 				
 				}
 				
-				if (input[line].length - line > 3) {
+				if (fitVertical) {
 					var vertical = new char[] {
 						input[line + 0][column], 
 						input[line + 1][column], 
@@ -69,7 +80,7 @@ class Day4 {
 					
 				}
 				
-				if ((input[line].length - column) > 3 && (input[line].length - line) > 3) {
+				if (fitHorizontal && fitVertical) {
 					var diagonalRight = new char[] {
 						input[line + 0][column + 0], 
 						input[line + 1][column + 1], 
@@ -80,7 +91,8 @@ class Day4 {
 					}
 				}
 				
-				if (column >=3 && (input[line].length - line) > 3) {
+
+				if (fitHorizontalBackward && fitVertical) {
 					var diagonalLeft = new char[] {
 						input[line + 0][column - 0], 
 						input[line + 1][column - 1], 
