@@ -8,94 +8,63 @@ class Day4 {
 	
 	public static void main(String[] args) {
 		
-//		System.out.println("Sample phase one result, expected: 143, actual: " +
-//			getSumOfValidUpdatesMiddleElement(parse(sample)));
-//		System.out.println("Actual phase one result, expected: 6041, actual: " +
-//			getSumOfValidUpdatesMiddleElement(parse(input)));
+		var validUpdatesOnly = true;
+		var fixedInvalidUpdatesOnly = false;
+		
+		System.out.println("Sample phase one result, expected: 143, actual: " +
+			getSumOfUpdatesMiddleElement(parse(sample), validUpdatesOnly));
+		System.out.println("Actual phase one result, expected: 6041, actual: " +
+			getSumOfUpdatesMiddleElement(parse(input), validUpdatesOnly));
 		System.out.println("Sample phase two result, expected: 123, actual: " +
-			getSumOfNOTValidUpdatesMiddleElement(parse(sample)));
-		System.out.println("Actual phase two result, expected: 123, actual: " +
-			getSumOfNOTValidUpdatesMiddleElement(parse(input)));
-		
+			getSumOfUpdatesMiddleElement(parse(sample), fixedInvalidUpdatesOnly));
+		System.out.println("Actual phase two result, expected: 4884, actual: " +
+			getSumOfUpdatesMiddleElement(parse(input), fixedInvalidUpdatesOnly));
 				
 	}
 	
-	public static int getSumOfValidUpdatesMiddleElement(PrintQueue input) {
-		int result = 0;
-		
-		for(List<Integer> update : input.updateList) {
-			List<Integer> partialUpdate = new ArrayList<Integer>();
-			var valid = true;
-			for(Integer page : update) {
-				var pagesBefore = input.pagesBeforeByPage.get(page);
+	public static int getSumOfUpdatesMiddleElement(PrintQueue input, boolean validOnly) {
+		return input.updateList.stream()
+			.map(update -> {
+				List<Integer> partialUpdate = new ArrayList<>();
+				boolean valid = true;
 				
-				partialUpdate.add(page);
-				if (pagesBefore == null) continue;
-				
-				for  (Integer pageBefore : pagesBefore) {
-					if (partialUpdate.contains(pageBefore)) {
+				for (Integer page : update) {
+					partialUpdate.add(page);
+					var pagesBefore = input.pagesBeforeByPage.get(page);
+					
+					if (pagesBefore != null && pagesBefore.stream().anyMatch(partialUpdate::contains)) {
 						valid = false;
 						break;
 					}
 				}
-				if (!valid) break;
-			}
-			
-			if (!valid) continue;
-			
-			result += partialUpdate.get(partialUpdate.size()/2);
-		}
-		
-		return result;
+				
+				List<Integer> finalUpdate = valid ? partialUpdate : fixOrder(new ArrayList<>(update), input);
+				return new Object[] { valid, finalUpdate };
+			})
+			.filter(result -> validOnly == (boolean) result[0])
+			.mapToInt(result -> {
+				List<Integer> finalUpdate = (List<Integer>) result[1];
+				var middleElement = finalUpdate.size() / 2;
+				return finalUpdate.get(middleElement);
+			})
+			.sum();
 	}
 	
-	public static int getSumOfNOTValidUpdatesMiddleElement(PrintQueue input) {
-		int result = 0;
-		
-		for(List<Integer> update : input.updateList) {
-			List<Integer> partialUpdate = new ArrayList<Integer>();
-			var valid = true;
-			for(Integer page : update) {
-				var pagesBefore = input.pagesBeforeByPage.get(page);
-				
-				partialUpdate.add(page);
-				if (pagesBefore == null) continue;
-				
-				for  (Integer pageBefore : pagesBefore) {
-					if (partialUpdate.contains(pageBefore)) {
-						valid = false;
-						break;
-					}
-				}
-				if (!valid) break;
-			}
-			
-			if (!valid) {
-				System.out.println("UPDATE " + update);
-				List<Integer> fixed = fixOrder(new ArrayList(update), input);
-				System.out.println("FIXED " + fixed);
-				result += fixed.get(fixed.size()/2);				
-			}
-
-		}
-		
-		return result;
-	}
 	
 	public static List<Integer> fixOrder(List<Integer> subject, PrintQueue input) {
 		
 		List<Integer> partialUpdate = new ArrayList<Integer>();
 		for(Integer page : subject) {
-			var pagesBefore = input.pagesBeforeByPage.get(page);
-			
 			partialUpdate.add(page);
+			
+			var pagesBefore = input.pagesBeforeByPage.get(page);
 			if (pagesBefore == null) continue;
 			
 			for  (Integer pageBefore : pagesBefore) {
 				if (partialUpdate.contains(pageBefore)) {
 					subject.remove(partialUpdate.indexOf(page));
 					subject.add(partialUpdate.indexOf(pageBefore), page);
-					return fixOrder(subject, input);
+					return fixOrder(subject, input); //recursive fix
 				}
 			}
 		}
@@ -106,31 +75,31 @@ class Day4 {
 	public static PrintQueue parse(String input) {
 		var result = new PrintQueue();
 		
-		var updateSection = false;
-		for (String line : input.split("\n")) {
-			if (line.trim() == "") {
-				updateSection = true;
-				continue;
-			}
-			
-			if (updateSection) {
-				List list = new ArrayList<Integer>();
-				var elements = line.trim().split(",");
-				for (String e : elements) {
-					list.add(new Integer(e));
-				}
-				result.updateList.add(list);
-				continue;
-			}
-			
-			Integer key = new Integer(line.split("\\|")[0]);
-			Integer value = new Integer(line.split("\\|")[1]);
-			if (result.pagesBeforeByPage.get(key) == null) result.pagesBeforeByPage.put(key, new HashSet<Integer>());
-			result.pagesBeforeByPage.get(key).add(value);
-		}
+		var lines = input.lines().toList();
+		var splitIndex = lines.indexOf(""); // Find the separator line
+		
+		var pagesBeforePageSection = lines.subList(0, splitIndex);
+		var updatesSection = lines.subList(splitIndex + 1, lines.size());
+		
+		pagesBeforePageSection.forEach(line -> {
+			var parts = line.split("\\|");
+			var key = Integer.valueOf(parts[0].trim());
+			var value = Integer.valueOf(parts[1].trim());
+			result.pagesBeforeByPage.computeIfAbsent(key, k -> new HashSet<>()).add(value);
+		});
+		
+		updatesSection.stream()
+			.filter(line -> !line.isBlank())
+			.map(line -> 
+				Arrays.stream(line.split(","))
+						.map(Integer::valueOf)
+						.toList()
+			)
+			.forEach(result.updateList::add);
 		
 		return result;
 	}
+	
 	
 	static String sample =	"""
 							47|53
