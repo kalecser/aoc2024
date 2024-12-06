@@ -4,7 +4,7 @@ import java.util.regex.*;
 import java.util.stream.*;
 import java.awt.*;
 
-class Day5 {
+class Day6 {
 	
 	public static void main(String[] args) {
 		
@@ -14,14 +14,14 @@ class Day5 {
 		System.out.println("Sample phase one result, expected: 41, actual: " + countSteps(parse(sample)));
 		System.out.println("Actual phase one result, expected: 4776, actual: " + countSteps(parse(input)));
 		System.out.println("Sample phase two result, expected: 143, actual: " + countLoopPossibilities(parse(sample)));
-		System.out.println("Actual phase two result, expected: 143, actual: " + countLoopPossibilities(parse(input)));
+		System.out.println("Actual phase two result, expected: 1586, actual: " + countLoopPossibilities(parse(input)));
 	}
 	
 	public static int countLoopPossibilities(char[][] grid) {
 		var result = 0;
 		
 		var guardStartingPosition = findGuard(grid);
-		countSteps(grid); //mark walked patgh with X
+		countSteps(grid); //mark walked path with X
 		
 		for (int i = 0; i < grid.length; i++) {
 			for (int h = 0; h < grid.length; h++) {
