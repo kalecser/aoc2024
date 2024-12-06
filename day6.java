@@ -7,10 +7,6 @@ import java.awt.*;
 class Day6 {
 	
 	public static void main(String[] args) {
-		
-		var validUpdatesOnly = true;
-		var fixedInvalidUpdatesOnly = false;
-		
 		System.out.println("Sample phase one result, expected: 41, actual: " + countSteps(parse(sample)));
 		System.out.println("Actual phase one result, expected: 4776, actual: " + countSteps(parse(input)));
 		System.out.println("Sample phase two result, expected: 143, actual: " + countLoopPossibilities(parse(sample)));
