@@ -11,7 +11,7 @@ class Day7 {
 		System.out.println("Sample phase one result, expected: 3749, actual: " + getSumOfResultsValidEquations(parse(sample), false));
 		System.out.println("Actual phase one result, expected: 1298300076754, actual: " + getSumOfResultsValidEquations(parse(input), false));
 		System.out.println("Sample phase two result, expected: 11387, actual: " + getSumOfResultsValidEquations(parse(sample), true));
-		System.out.println("Actual phase two result, expected: 11387, actual: " + getSumOfResultsValidEquations(parse(input), true));
+		System.out.println("Actual phase two result, expected: 248427118972289, actual: " + getSumOfResultsValidEquations(parse(input), true));
 	}
 	
 	public static long getSumOfResultsValidEquations(List<Equation> input, boolean includeConcat) {
