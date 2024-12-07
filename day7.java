@@ -17,82 +17,65 @@ class Day7 {
 	public static long getSumOfResultsValidEquations(List<Equation> input, boolean includeConcat) {
 		long sum = 0;
 		
-		for (Equation entry : input) {
-			if (isValidEquation(entry.result, entry.components, includeConcat)) {
-				sum += entry.result; // Add the result to the sum if valid
+		for (Equation e : input) {
+			if (isValidEquation(e, includeConcat)) {
+				sum += e.result; // Add the result to the sum if valid
 			}
 		}
 		
 		return sum;
 	}
 	
-	public static boolean isValidEquation(long result, long[] elements, boolean includeConcat) {
-		var operations = new char[elements.length - 1];
-		return isValidEquation(result, elements, operations, includeConcat);
-	}
-	public static boolean isValidEquation(long result, long[] elements, char[] operations, boolean includeConcat) {
+	public static boolean isValidEquation(Equation e, boolean includeConcat) {
 		
-		long proposedResult = elements[0];
-		int emptyOperationIndex = operations.length;
+		//exit clause
+		if (e.components.size() == 1) { 
+			var result = e.result.equals(e.components.get(0));
+			return result;
+		}
 		
-		for(int i = 1; i < elements.length; i++) {
-			var op = operations[i - 1];
-			if (op == '+') {
-				proposedResult += elements[i];
-			} else if (op == '*') {
-				proposedResult *= elements[i];
-			} else if (op == '|' && includeConcat) {
-				proposedResult = Long.parseLong(proposedResult + "" + elements[i]);
-			} else {
-				emptyOperationIndex = Math.min(emptyOperationIndex, i - 1);
-				proposedResult += elements[i]; //default to plus
+		long a = e.components.get(0);
+		long b = e.components.get(1);
+		
+		List<Long> simplified_components = new ArrayList<Long>(e.components);
+		simplified_components.remove(0);
+		simplified_components.remove(0);
+		
+		simplified_components.add(0, a + b);
+		if (isValidEquation(new Equation(e.result, simplified_components), includeConcat)) {
+			return true;
+		}
+		
+		simplified_components.remove(0);
+		simplified_components.add(0, a * b);
+		if (isValidEquation(new Equation(e.result, simplified_components), includeConcat)) { 
+			return true;
+		}
+		
+		if (includeConcat) {
+			simplified_components.remove(0);
+			simplified_components.add(0, Long.parseLong(a + "" + b));
+			if (isValidEquation(new Equation(e.result, simplified_components), includeConcat)) { 
+				return true;
 			}
 		}
-
-		if (proposedResult == result) {
-			return true;
-		} 
 		
-		if (emptyOperationIndex == operations.length) {
-			return false;
-		}
-		
-		var operationsClone = operations.clone();
-		operationsClone[emptyOperationIndex] = '+';
-		if (isValidEquation(result, elements, operationsClone, includeConcat)) return true;
-		
-		operationsClone = operations.clone();
-		operationsClone[emptyOperationIndex] = '*';
-		if (isValidEquation(result,  elements, operationsClone, includeConcat)) return true;
-		
-		operationsClone = operations.clone();
-		operationsClone[emptyOperationIndex] = '|';
-		if (includeConcat && isValidEquation(result,  elements, operationsClone, includeConcat)) return true;
-			
 		return false;
 	}
 	
+	public record Equation(Long result, List<Long> components) {}
 	public static List<Equation> parse(String input) {
 		return input.lines()
 			.map(line -> line.split(": "))
 			.map(parts -> 
-					new Equation(
-						Long.parseLong(parts[0]), // Parse result as Long
-						Arrays.stream(parts[1].split(" ")) // Parse components as long[]
-									.mapToLong(Long::parseLong)
-									.toArray()
-				))
+				new Equation(
+					Long.parseLong(parts[0]), // Parse result as Long
+					Arrays.stream(parts[1].split(" ")) // Parse components as List<Long>
+						.map(Long::parseLong)
+						.collect(Collectors.toList())
+				)
+			)
 			.collect(Collectors.toList());
-	}
-	
-	public static class Equation {
-		public Long result;
-		public long[] components;
-		
-		public Equation(Long result, long[] components) {
-			this.result = result;
-			this.components = components;
-		}
 	}
 	
 	static String sample =	"""
