@@ -9,13 +9,13 @@ class Day3 {
 		System.out.println("Sample phase one result, expected: 161, actual: " 
 			+ compute(parse(sample, false)));
 		
-		System.out.println("Actual phase one result, expected: 220, actual: " 
+		System.out.println("Actual phase one result, expected: 166905464, actual: " 
 			+ compute(parse(input, false)));
 		
 		System.out.println("Sample phase two result, expected: 48, actual: " 
 			+ compute(parse(sample2, true)));
 
-		System.out.println("Actual phase two result, expected: 48, actual: " 
+		System.out.println("Actual phase two result, expected: 72948684, actual: " 
 			+ compute(parse(input, true)));
 		
 	}
