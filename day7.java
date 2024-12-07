@@ -32,13 +32,13 @@ class Day7 {
 		List<Long> simplifiedComponents = new ArrayList<>(e.components.subList(2, e.components.size()));
 		
 		if (
-								checkOperation(e.result, a + b, simplifiedComponents, includeConcat) ||
-								checkOperation(e.result, a * b, simplifiedComponents, includeConcat) ||
+			checkOperation(e.result, a + b, simplifiedComponents, includeConcat) ||
+			checkOperation(e.result, a * b, simplifiedComponents, includeConcat) ||
 			(includeConcat &&	checkOperation(e.result, Long.parseLong(a + "" + b), simplifiedComponents, includeConcat))) {
 			return true;
+		} else {
+			return false;
 		}
-		
-		return false;
 	}
 	
 	private static boolean checkOperation(Long result, long newValue, List<Long> simplifiedComponents, boolean includeConcat) {
