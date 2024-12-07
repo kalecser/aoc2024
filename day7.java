@@ -31,9 +31,10 @@ class Day7 {
 		long b = e.components.get(1);
 		List<Long> simplifiedComponents = new ArrayList<>(e.components.subList(2, e.components.size()));
 		
-		if (checkOperation(e.result, a + b, simplifiedComponents, includeConcat) ||
-			checkOperation(e.result, a * b, simplifiedComponents, includeConcat) ||
-			(includeConcat && checkOperation(e.result, Long.parseLong(a + "" + b), simplifiedComponents, includeConcat))) {
+		if (
+								checkOperation(e.result, a + b, simplifiedComponents, includeConcat) ||
+								checkOperation(e.result, a * b, simplifiedComponents, includeConcat) ||
+			(includeConcat && 	checkOperation(e.result, Long.parseLong(a + "" + b), simplifiedComponents, includeConcat))) {
 			return true;
 		}
 		
