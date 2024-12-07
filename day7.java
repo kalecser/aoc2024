@@ -8,15 +8,17 @@ import java.rmi.server.*;
 class Day7 {
 	
 	public static void main(String[] args) {
-		System.out.println("Sample phase one result, expected: 3749, actual: " + getSumOfResultsValidEquations(parse(sample)));
-		System.out.println("Actual phase one result, expected: 1298300076754, actual: " + getSumOfResultsValidEquations(parse(input)));
+		System.out.println("Sample phase one result, expected: 3749, actual: " + getSumOfResultsValidEquations(parse(sample), false));
+		System.out.println("Actual phase one result, expected: 1298300076754, actual: " + getSumOfResultsValidEquations(parse(input), false));
+		System.out.println("Sample phase two result, expected: 11387, actual: " + getSumOfResultsValidEquations(parse(sample), true));
+		System.out.println("Actual phase two result, expected: 11387, actual: " + getSumOfResultsValidEquations(parse(input), true));
 	}
 	
-	public static long getSumOfResultsValidEquations(List<Equation> input) {
+	public static long getSumOfResultsValidEquations(List<Equation> input, boolean includeConcat) {
 		long sum = 0;
 		
 		for (Equation entry : input) {
-			if (isValidEquation(entry.result, entry.components)) {
+			if (isValidEquation(entry.result, entry.components, includeConcat)) {
 				sum += entry.result; // Add the result to the sum if valid
 			}
 		}
@@ -24,15 +26,11 @@ class Day7 {
 		return sum;
 	}
 	
-	public static boolean isValidEquation(long result, long[] elements) {
-		
+	public static boolean isValidEquation(long result, long[] elements, boolean includeConcat) {
 		var operations = new char[elements.length - 1];
-		
-		var valid = isValidEquation(result, elements, operations);
-		
-		return isValidEquation(result, elements, operations);
+		return isValidEquation(result, elements, operations, includeConcat);
 	}
-	public static boolean isValidEquation(long result, long[] elements, char[] operations) {
+	public static boolean isValidEquation(long result, long[] elements, char[] operations, boolean includeConcat) {
 		
 		long proposedResult = elements[0];
 		int emptyOperationIndex = operations.length;
@@ -43,8 +41,8 @@ class Day7 {
 				proposedResult += elements[i];
 			} else if (op == '*') {
 				proposedResult *= elements[i];
-			} else if (op == '|') {
-				proposedResult = Long.parseLong(proposedResult + "" + elements[1]);
+			} else if (op == '|' && includeConcat) {
+				proposedResult = Long.parseLong(proposedResult + "" + elements[i]);
 			} else {
 				emptyOperationIndex = Math.min(emptyOperationIndex, i - 1);
 				proposedResult += elements[i]; //default to plus
@@ -61,15 +59,15 @@ class Day7 {
 		
 		var operationsClone = operations.clone();
 		operationsClone[emptyOperationIndex] = '+';
-		if (isValidEquation(result, elements, operationsClone)) return true;
+		if (isValidEquation(result, elements, operationsClone, includeConcat)) return true;
 		
 		operationsClone = operations.clone();
 		operationsClone[emptyOperationIndex] = '*';
-		if (isValidEquation(result,  elements, operationsClone)) return true;
+		if (isValidEquation(result,  elements, operationsClone, includeConcat)) return true;
 		
 		operationsClone = operations.clone();
 		operationsClone[emptyOperationIndex] = '|';
-		if (isValidEquation(result,  elements, operationsClone)) return true;
+		if (includeConcat && isValidEquation(result,  elements, operationsClone, includeConcat)) return true;
 			
 		return false;
 	}
