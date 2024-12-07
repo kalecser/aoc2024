@@ -34,7 +34,7 @@ class Day7 {
 		if (
 								checkOperation(e.result, a + b, simplifiedComponents, includeConcat) ||
 								checkOperation(e.result, a * b, simplifiedComponents, includeConcat) ||
-			(includeConcat && 	checkOperation(e.result, Long.parseLong(a + "" + b), simplifiedComponents, includeConcat))) {
+			(includeConcat &&	checkOperation(e.result, Long.parseLong(a + "" + b), simplifiedComponents, includeConcat))) {
 			return true;
 		}
 		
