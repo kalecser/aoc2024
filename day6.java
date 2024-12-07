@@ -52,6 +52,7 @@ class Day6 {
 		Set<String> stepsAlreadyTakenWithDirection = new HashSet<String>();
 		
 		try {
+			long h = 0;
 			while (true) {
 				
 				if (grid[g.x][g.y] != 'X') {
@@ -86,7 +87,10 @@ class Day6 {
 					throw new RuntimeException("loop");
 				}
 				
-				stepsAlreadyTakenWithDirection.add(stepId);
+				h++;
+				if (h % 10000 == 0) {
+					stepsAlreadyTakenWithDirection.add(stepId);
+				}
 				
 			}
 		} catch(ArrayIndexOutOfBoundsException $expectedLazyProgrammer) {
