@@ -15,52 +15,38 @@ class Day7 {
 	}
 	
 	public static long getSumOfResultsValidEquations(List<Equation> input, boolean includeConcat) {
-		long sum = 0;
-		
-		for (Equation e : input) {
-			if (isValidEquation(e, includeConcat)) {
-				sum += e.result; // Add the result to the sum if valid
-			}
-		}
-		
-		return sum;
+		return input.stream()
+			.filter(e -> isValidEquation(e, includeConcat))
+			.mapToLong(e -> e.result)
+			.sum();
 	}
 	
 	public static boolean isValidEquation(Equation e, boolean includeConcat) {
-		
-		//exit clause
+		// Exit clause
 		if (e.components.size() == 1) { 
-			var result = e.result.equals(e.components.get(0));
-			return result;
+			return e.result.equals(e.components.get(0));
 		}
 		
 		long a = e.components.get(0);
 		long b = e.components.get(1);
+		List<Long> simplifiedComponents = new ArrayList<>(e.components.subList(2, e.components.size()));
 		
-		List<Long> simplified_components = new ArrayList<Long>(e.components);
-		simplified_components.remove(0);
-		simplified_components.remove(0);
-		
-		simplified_components.add(0, a + b);
-		if (isValidEquation(new Equation(e.result, simplified_components), includeConcat)) {
+		if (checkOperation(e.result, a + b, simplifiedComponents, includeConcat) ||
+			checkOperation(e.result, a * b, simplifiedComponents, includeConcat) ||
+			(includeConcat && checkOperation(e.result, Long.parseLong(a + "" + b), simplifiedComponents, includeConcat))) {
 			return true;
-		}
-		
-		simplified_components.remove(0);
-		simplified_components.add(0, a * b);
-		if (isValidEquation(new Equation(e.result, simplified_components), includeConcat)) { 
-			return true;
-		}
-		
-		if (includeConcat) {
-			simplified_components.remove(0);
-			simplified_components.add(0, Long.parseLong(a + "" + b));
-			if (isValidEquation(new Equation(e.result, simplified_components), includeConcat)) { 
-				return true;
-			}
 		}
 		
 		return false;
+	}
+	
+	private static boolean checkOperation(Long result, long newValue, List<Long> simplifiedComponents, boolean includeConcat) {
+		simplifiedComponents.add(0, newValue);
+		try {
+			return isValidEquation(new Equation(result, simplifiedComponents), includeConcat);	
+		} finally {
+			simplifiedComponents.remove(0);	
+		}
 	}
 	
 	public record Equation(Long result, List<Long> components) {}
