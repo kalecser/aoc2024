@@ -1,9 +1,6 @@
 import java.util.*;
 import java.util.List;
-import java.util.regex.*;
 import java.util.stream.*;
-import java.awt.*;
-import java.rmi.server.*;
 
 class Day7 {
 	
