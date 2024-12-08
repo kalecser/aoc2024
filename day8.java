@@ -1,6 +1,7 @@
 import java.util.*;
 import java.util.List;
 import java.util.stream.*;
+import java.awt.*;
 
 class Day8 {
 	
@@ -12,20 +13,14 @@ class Day8 {
 	}
 	
 	public static int countUniqueAntiNodes(Map<Character, AntennaGrid> input, boolean should_propagate) {
-		Set<String> antiNodesUnique = new HashSet<String>();
+		Set<Point> antiNodesUnique = new HashSet<Point>();
 		
 		for (Map.Entry<Character, AntennaGrid> entry : input.entrySet()) {
 			AntennaGrid grid = entry.getValue();
-			for(int[] antinodeCoordinate : grid.getAntiNodeCoordinates_XYXY(should_propagate)) {
-				if (grid.inGrid(antinodeCoordinate[0], antinodeCoordinate[1])) { 
-					antiNodesUnique.add(antinodeCoordinate[0] + ":" + antinodeCoordinate[1]);
-				}
-			}	
+			antiNodesUnique.addAll(grid.getAntiNodeCoordinates(should_propagate));
 			
 			if (should_propagate) { //antennas are anti-nodes when propagating
-				for (int[] antennaCoordinate : grid.coordinates) {
-					antiNodesUnique.add(antennaCoordinate[0] + ":" + antennaCoordinate[1]);
-				}
+				antiNodesUnique.addAll(grid.coordinates);
 			}
 		}
 
@@ -52,8 +47,8 @@ class Day8 {
 	}
 	
 	public static class AntennaGrid {
-			public final List<int[]> coordinates = new ArrayList<>();
-			public int height, width;
+			public final Set<Point> coordinates = new HashSet<>();
+			private int height, width;
 			
 			public AntennaGrid(int height, int width) {
 				this.height = height;
@@ -61,42 +56,34 @@ class Day8 {
 			}
 		
 			public void addCoordinate(int x, int y) {
-				coordinates.add(new int[]{x, y});
+				coordinates.add(new Point(x, y));
 			}
 		
-			public Set<int[]> getAntiNodeCoordinates_XYXY(boolean should_propagate) {
+			public Set<Point> getAntiNodeCoordinates(boolean should_propagate) {
 				
-				int propagate_count = should_propagate ?Math.max(height,width) :1;
+				int propagate_count = should_propagate 
+					?Math.max(height,width)  // propagate to the limits of the grid
+					:1;
 				
-				Set<int[]> result = new HashSet<>();
-				int index = 0;
-				for (int i = 0; i < coordinates.size(); i++) {
-					for (int h = i + 1; h < coordinates.size(); h++) {
-						var a = coordinates.get(i);
-						var b = coordinates.get(h); 
-						
-						var x1 = a[0];
-						var y1 = a[1];
-						var x2 = b[0];
-						var y2 = b[1];
-						
-						
-						for (int count =1; count <= propagate_count; count++) {
-							int[] antinode1 = {x1 - ((x2 - x1) * count), y1 - ((y2 - y1) * count)};
-							int[] antinode2 = {x2 + ((x2 - x1) * count), y2 + ((y2 - y1) * count)};
-							
-							result.add(antinode1);
-							result.add(antinode2);
-						}
-						
-					}
-				}
+				Set<List<Point>> coordinatePairs = coordinates.stream()
+					.flatMap(element1 -> coordinates.stream().map(element2 -> List.of(element1, element2)))
+					.collect(Collectors.toSet());
 				
-				return result;
+				return coordinatePairs.stream()
+					.filter(pair -> !pair.get(0).equals(pair.get(1))) // Only distinct pairs
+					.flatMap(pair -> IntStream.rangeClosed(1, propagate_count)
+						.mapToObj(count -> new Point(
+							pair.get(0).x - (pair.get(1).x - pair.get(0).x) * count,
+							pair.get(0).y - (pair.get(1).y - pair.get(0).y) * count
+						))
+						.filter(this::inGrid) // Only include points in the grid
+					)
+					.collect(Collectors.toSet());
+				
 			}
 		
-			public boolean inGrid(int x, int y) {
-				return (x >= 0 && x < width && y >= 0 && y < height);
+			private boolean inGrid(Point p) {
+				return (p.x >= 0 && p.x < width && p.y >= 0 && p.y < height);
 			}
 		
 		}
