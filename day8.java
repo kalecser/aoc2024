@@ -66,8 +66,8 @@ class Day8 {
 					:1;
 				
 				return coordinates.stream()
-					.flatMap(element1 -> coordinates.stream().map(element2 -> List.of(element1, element2)))
-					.filter(pair -> !pair.get(0).equals(pair.get(1))) // Only distinct pairs
+					.flatMap(element1 -> coordinates.stream().map(element2 -> List.of(element1, element2))) //coordinate permutations...
+					.filter(pair -> !pair.get(0).equals(pair.get(1))) //...only distinct pairs
 					.flatMap(pair -> IntStream.rangeClosed(1, propagate_count)
 						.mapToObj(count -> new Point(
 							pair.get(0).x - (pair.get(1).x - pair.get(0).x) * count,
