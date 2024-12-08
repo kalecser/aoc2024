@@ -16,10 +16,9 @@ class Day8 {
 		
 		for (Map.Entry<Character, AntennaGrid> entry : input.entrySet()) {
 			AntennaGrid grid = entry.getValue();
-			var coords = grid.getAntiNodeCoordinates_XYXY(should_propagate);
-			for(int i = 0; i < coords.length; i += 2) {
-				if (grid.inGrid(coords[i + 1], coords[i])) { 
-					antiNodesUnique.add(coords[i] + ":" + coords[i + 1]);
+			for(int[] antinodeCoordinate : grid.getAntiNodeCoordinates_XYXY(should_propagate)) {
+				if (grid.inGrid(antinodeCoordinate[0], antinodeCoordinate[1])) { 
+					antiNodesUnique.add(antinodeCoordinate[0] + ":" + antinodeCoordinate[1]);
 				}
 			}	
 			
@@ -65,16 +64,14 @@ class Day8 {
 				coordinates.add(new int[]{x, y});
 			}
 		
-			public int[] getAntiNodeCoordinates_XYXY(boolean should_propagate) {
+			public Set<int[]> getAntiNodeCoordinates_XYXY(boolean should_propagate) {
 				
 				int propagate_count = should_propagate ?Math.max(height,width) :1;
 				
-				var count = coordinates.size();
-				var result = new int[((count * (count - 1)) * 2) * propagate_count];
+				Set<int[]> result = new HashSet<>();
 				int index = 0;
 				for (int i = 0; i < coordinates.size(); i++) {
 					for (int h = i + 1; h < coordinates.size(); h++) {
-						
 						var a = coordinates.get(i);
 						var b = coordinates.get(h); 
 						
@@ -84,14 +81,12 @@ class Day8 {
 						var y2 = b[1];
 						
 						
-						for (count =1; count <= propagate_count; count++) {
+						for (int count =1; count <= propagate_count; count++) {
 							int[] antinode1 = {x1 - ((x2 - x1) * count), y1 - ((y2 - y1) * count)};
 							int[] antinode2 = {x2 + ((x2 - x1) * count), y2 + ((y2 - y1) * count)};
 							
-							result[index++] = antinode1[0];
-							result[index++] = antinode1[1];
-							result[index++] = antinode2[0];
-							result[index++] = antinode2[1];	
+							result.add(antinode1);
+							result.add(antinode2);
 						}
 						
 					}
