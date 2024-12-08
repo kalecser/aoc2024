@@ -19,22 +19,22 @@ validate_output() {
   done
 }
 
-# Run all Java programs directly
-for java_file in "$PROGRAM_DIR"/*.java; do
-  echo "Running $java_file..."
-  
-  # Capture and validate output
-  output=$(java "$java_file")
-  echo "$output"
-  echo "$output" | validate_output
-done
-
 # Run all PHP programs
 for php_file in "$PROGRAM_DIR"/*.php; do
   echo "Running $php_file..."
   
   # Capture and validate output
   output=$(php "$php_file")
+  echo "$output"
+  echo "$output" | validate_output
+done
+
+# Run all Java programs directly
+for java_file in "$PROGRAM_DIR"/*.java; do
+  echo "Running $java_file..."
+  
+  # Capture and validate output
+  output=$(java "$java_file")
   echo "$output"
   echo "$output" | validate_output
 done
