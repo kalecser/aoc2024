@@ -5,25 +5,25 @@ import java.util.stream.*;
 class Day8 {
 	
 	public static void main(String[] args) {
-		System.out.println("Sample phase one result, expected: 14, actual: " + countUniqueAntiNodes(parse(sample), false));
-		System.out.println("Actual phase one result, expected: 273, actual: " + countUniqueAntiNodes(parse(input), false));
-		System.out.println("Sample phase two result, expected: 34, actual: " + countUniqueAntiNodes(parse(sample), true));
-		System.out.println("Actual phase two result, expected: 1017, actual: " + countUniqueAntiNodes(parse(input), true));
+		System.out.println("Sample phase one result, expected: 14, actual: " + countUniqueAntiNodes(parse(sample), 1));
+		System.out.println("Actual phase one result, expected: 273, actual: " + countUniqueAntiNodes(parse(input), 1));
+		System.out.println("Sample phase two result, expected: 34, actual: " + countUniqueAntiNodes(parse(sample), 55));
+		System.out.println("Actual phase two result, expected: 1017, actual: " + countUniqueAntiNodes(parse(input), 55));
 	}
 	
-	public static int countUniqueAntiNodes(Map<Character, AntennaGrid> input, boolean propagate) {
+	public static int countUniqueAntiNodes(Map<Character, AntennaGrid> input, int propagate_count) {
 		Set<String> antiNodesUnique = new HashSet<String>();
 		
 		for (Map.Entry<Character, AntennaGrid> entry : input.entrySet()) {
 			AntennaGrid grid = entry.getValue();
-			var coords = grid.getAntiNodeCoordinates_XYXY(propagate);
+			var coords = grid.getAntiNodeCoordinates_XYXY(propagate_count);
 			for(int i = 0; i < coords.length; i += 2) {
 				if (grid.inGrid(coords[i + 1], coords[i])) { 
 					antiNodesUnique.add(coords[i] + ":" + coords[i + 1]);
 				}
 			}	
 			
-			if (propagate) { //antennas are also anti-nodes
+			if (propagate_count > 1) {
 				for (int[] antennaCoordinate : grid.coordinates) {
 					antiNodesUnique.add(antennaCoordinate[0] + ":" + antennaCoordinate[1]);
 				}
@@ -65,9 +65,9 @@ class Day8 {
 				coordinates.add(new int[]{x, y});
 			}
 		
-			public int[] getAntiNodeCoordinates_XYXY(boolean propagate) {
+			public int[] getAntiNodeCoordinates_XYXY(int propagate_count) {
 				var count = coordinates.size();
-				var result = new int[((count * (count - 1)) * 2) * (propagate ?Math.max(height, width) :1) ];
+				var result = new int[((count * (count - 1)) * 2) * propagate_count];
 				int index = 0;
 				for (int i = 0; i < coordinates.size(); i++) {
 					for (int h = i + 1; h < coordinates.size(); h++) {
@@ -81,16 +81,14 @@ class Day8 {
 						var y2 = b[1];
 						
 						
-						if (propagate) {
-							for (count =1; count <= Math.max(height, width); count++) {
-								int[] antinode1 = {x1 - ((x2 - x1) * count), y1 - ((y2 - y1) * count)};
-								int[] antinode2 = {x2 + ((x2 - x1) * count), y2 + ((y2 - y1) * count)};
-								
-								result[index++] = antinode1[0];
-								result[index++] = antinode1[1];
-								result[index++] = antinode2[0];
-								result[index++] = antinode2[1];	
-							}	
+						for (count =1; count <= propagate_count; count++) {
+							int[] antinode1 = {x1 - ((x2 - x1) * count), y1 - ((y2 - y1) * count)};
+							int[] antinode2 = {x2 + ((x2 - x1) * count), y2 + ((y2 - y1) * count)};
+							
+							result[index++] = antinode1[0];
+							result[index++] = antinode1[1];
+							result[index++] = antinode2[0];
+							result[index++] = antinode2[1];	
 						}
 						
 					}
