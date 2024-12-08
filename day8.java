@@ -5,25 +5,25 @@ import java.util.stream.*;
 class Day8 {
 	
 	public static void main(String[] args) {
-		System.out.println("Sample phase one result, expected: 14, actual: " + countUniqueAntiNodes(parse(sample), 1));
-		System.out.println("Actual phase one result, expected: 273, actual: " + countUniqueAntiNodes(parse(input), 1));
-		System.out.println("Sample phase two result, expected: 34, actual: " + countUniqueAntiNodes(parse(sample), 55));
-		System.out.println("Actual phase two result, expected: 1017, actual: " + countUniqueAntiNodes(parse(input), 55));
+		System.out.println("Sample phase one result, expected: 14, actual: " + countUniqueAntiNodes(parse(sample), false));
+		System.out.println("Actual phase one result, expected: 273, actual: " + countUniqueAntiNodes(parse(input), false));
+		System.out.println("Sample phase two result, expected: 34, actual: " + countUniqueAntiNodes(parse(sample), true));
+		System.out.println("Actual phase two result, expected: 1017, actual: " + countUniqueAntiNodes(parse(input), true));
 	}
 	
-	public static int countUniqueAntiNodes(Map<Character, AntennaGrid> input, int propagate_count) {
+	public static int countUniqueAntiNodes(Map<Character, AntennaGrid> input, boolean should_propagate) {
 		Set<String> antiNodesUnique = new HashSet<String>();
 		
 		for (Map.Entry<Character, AntennaGrid> entry : input.entrySet()) {
 			AntennaGrid grid = entry.getValue();
-			var coords = grid.getAntiNodeCoordinates_XYXY(propagate_count);
+			var coords = grid.getAntiNodeCoordinates_XYXY(should_propagate);
 			for(int i = 0; i < coords.length; i += 2) {
 				if (grid.inGrid(coords[i + 1], coords[i])) { 
 					antiNodesUnique.add(coords[i] + ":" + coords[i + 1]);
 				}
 			}	
 			
-			if (propagate_count > 1) {
+			if (should_propagate) { //antennas are anti-nodes when propagating
 				for (int[] antennaCoordinate : grid.coordinates) {
 					antiNodesUnique.add(antennaCoordinate[0] + ":" + antennaCoordinate[1]);
 				}
@@ -65,7 +65,10 @@ class Day8 {
 				coordinates.add(new int[]{x, y});
 			}
 		
-			public int[] getAntiNodeCoordinates_XYXY(int propagate_count) {
+			public int[] getAntiNodeCoordinates_XYXY(boolean should_propagate) {
+				
+				int propagate_count = should_propagate ?Math.max(height,width) :1;
+				
 				var count = coordinates.size();
 				var result = new int[((count * (count - 1)) * 2) * propagate_count];
 				int index = 0;
