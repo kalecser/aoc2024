@@ -65,11 +65,8 @@ class Day8 {
 					?Math.max(height,width)  // propagate to the limits of the grid
 					:1;
 				
-				Set<List<Point>> coordinatePairs = coordinates.stream()
+				return coordinates.stream()
 					.flatMap(element1 -> coordinates.stream().map(element2 -> List.of(element1, element2)))
-					.collect(Collectors.toSet());
-				
-				return coordinatePairs.stream()
 					.filter(pair -> !pair.get(0).equals(pair.get(1))) // Only distinct pairs
 					.flatMap(pair -> IntStream.rangeClosed(1, propagate_count)
 						.mapToObj(count -> new Point(
