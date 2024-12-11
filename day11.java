@@ -34,8 +34,7 @@ class Day11 {
 		Long a,b = null;
 		if (stone == 0l) {
 			return memoizeBlinkAndReturnCount(1l, times -1);
-		} else if (((Math.log10(stone) + 1) % 2) == 0) { //even number of digits
-			es = "" + stone;
+		} else if (((es = "" + stone).length() % 2) == 0) { //even number of digits
 			a = Long.parseLong(es.substring(es.length()/2));
 			b = Long.parseLong(es.substring(0, es.length()/2));
 			return memoizeBlinkAndReturnCount(a, times -1) + blinkAndReturnCount(b, times -1);
