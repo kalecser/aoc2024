@@ -15,95 +15,43 @@ class Day11 {
 	
 	public static long getStoneCountAfterNBlinks(List<Long> stoneList, int blinks) {
 		
-		Map<Long, Long> stoneCountByValue = new HashMap<Long, Long>();
+		long result = 0l;
 		
 		for(Long stone : stoneList) {
-			stoneCountByValue.put(stone, 1l);
+			result+= blinkAndReturnCount(stone, blinks);
 		}
-		
-		
-		
-		var map = change(stoneCountByValue, blinks);
-		
-		long sum = 0l;
-		for (Map.Entry<Long, Long> newEntry : map.entrySet()) {
-			sum += newEntry.getValue();
-		}
-		return sum;
-	}
-	
-	
-	public static Map<Long, Long> change(Map<Long, Long> stoneCountByValue, int count) {
-
-		
-		Map<Long, Long> result = new HashMap();
-		
-		for (Map.Entry<Long, Long> entry : stoneCountByValue.entrySet()) {
-			long e = entry.getKey();
-			var subResult = computeSubResult(e, count);
-			
-			for (Map.Entry<Long, Long> newEntry : subResult.entrySet()) {
-				result.put(newEntry.getKey(), result.getOrDefault(newEntry.getKey(), 0l) + newEntry.getValue());
-			}
-		}
-	
 		
 		return result;
 	}
 	
-	static Map<String, Map<Long, Long>> memory = new HashMap<>();
+	public static long blinkAndReturnCount(Long stone, int times) {
+		
+		if (times == 0) {
+			return 1;// last stone
+		}
+		
+		String es;
+		Long a,b = null;
+		if (stone == 0l) {
+			return memoizeBlinkAndReturnCount(1l, times -1);
+		} else if ((es = "" + stone).length() % 2 == 0) { //even number of digits
+			a = Long.parseLong(es.substring(es.length()/2));
+			b = Long.parseLong(es.substring(0, es.length()/2));
+			return memoizeBlinkAndReturnCount(a, times -1) + blinkAndReturnCount(b, times -1);
+		} else {
+			return memoizeBlinkAndReturnCount(stone * 2024, times -1);
+		}
+	}
 	
-	public static Map<Long, Long> computeSubResult(Long e, int count) {
-		
-		if (memory.containsKey(e + ":" + count)) {
-			return memory.get(e + ":" + count);
+	private static HashMap<String, Long> memory = new HashMap<String, Long>();
+	public static long memoizeBlinkAndReturnCount(Long stone, int times) {
+		var key = stone + ":" + times;
+		if (memory.containsKey(key)) {
+			return memory.get(key);
 		}
 		
-		Map<Long, Long> result = new HashMap<Long, Long>();
-		
-		if (count == 1) {
-			String es = "";
-			
-			if (e == 0l) {
-				result.put(1l, 1l);
-				return result;
-			} 
-			
-			if ((es = "" + e).length() % 2 == 0) { //even number of digits
-				
-				var a = Long.parseLong(es.substring(es.length()/2));
-				var b = Long.parseLong(es.substring(0, es.length()/2));
-				
-				if (a == b) {
-					result.put(a, 2l);	
-				} else {
-					result.put(a, 1l);
-					result.put(b, 1l);	
-				}
-				
-				return result;
-			}
-			
-			Long ne = e * 2024;
-			result.put(ne, 1l);
-			return result;
-		}
-		
-		Map<Long, Long> subResult = computeSubResult(e, 1);
-		
-		for (Map.Entry<Long, Long> newEntry : subResult.entrySet()) {
-			var sub_sub_result = computeSubResult(newEntry.getKey(), count - 1);
-			for (Map.Entry<Long, Long> sub_sub_entry : sub_sub_result.entrySet()) {
-				result.put(sub_sub_entry.getKey(), result.getOrDefault(sub_sub_entry.getKey(), 0l) + (sub_sub_entry.getValue() * newEntry.getValue()));
-			}
-		}			
-		String str = "" + result;
-		
-
-		memory.put(e + ":" + count, result);		
-
-		
-		
+		var result = blinkAndReturnCount(stone, times);
+		memory.put(key, result);
 		return result;
 	}
 	
@@ -117,5 +65,3 @@ class Day11 {
 	
 	static String input =	"3028 78 973951 5146801 5 0 23533 857";
 }
-
-	
