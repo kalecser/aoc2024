@@ -7,11 +7,13 @@ import java.awt.*;
 class Day11 {
 	
 	public static void main(String[] args) {
-		System.out.println("Actual phase one result, expected: 198089, actual: " + getStoneCountAfter25Blinks(parse(sample)));
+		System.out.println("Sample phase one result, expected: 55312, actual: " + getStoneCountAfterNBlinks(parse(sample), 25));
+		System.out.println("Actual phase one result, expected: 198089, actual: " + getStoneCountAfterNBlinks(parse(input), 25));
+		System.out.println("Actual phase two result, expected: 236302670835517, actual: " + getStoneCountAfterNBlinks(parse(input), 75));
 		
 	}
 	
-	public static long getStoneCountAfter25Blinks(List<Long> stoneList) {
+	public static long getStoneCountAfterNBlinks(List<Long> stoneList, int blinks) {
 		
 		Map<Long, Long> stoneCountByValue = new HashMap<Long, Long>();
 		
@@ -21,7 +23,7 @@ class Day11 {
 		
 		
 		
-		var map = change(stoneCountByValue, 75);
+		var map = change(stoneCountByValue, blinks);
 		
 		long sum = 0l;
 		for (Map.Entry<Long, Long> newEntry : map.entrySet()) {
@@ -97,9 +99,9 @@ class Day11 {
 		}			
 		String str = "" + result;
 		
-		if (count > 7) {
-			memory.put(e + ":" + count, result);		
-		}
+
+		memory.put(e + ":" + count, result);		
+
 		
 		
 		return result;
@@ -111,11 +113,9 @@ class Day11 {
 			.collect(Collectors.toList());
 	}
 	
-	static String sample =	"3028 78 973951 5146801 5 0 23533 857";
+	static String sample =	"125 17";
 	
-	static String input =	"""
-							
-							""";
+	static String input =	"3028 78 973951 5146801 5 0 23533 857";
 }
 
 	
