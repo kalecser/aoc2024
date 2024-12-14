@@ -68,7 +68,7 @@ class Day13 {
 			}
 			
 			var count = countConnectedTiles(grid);
-			if (count > 20) {
+			if (count > 20) { //try to find a pattern
 				return i + 1;
 			}
 			
