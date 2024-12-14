@@ -21,39 +21,39 @@ class Day13 {
 	}
 	
 	public static int countConnectedTiles(int[][] grid) {
-			boolean[][] visited = new boolean[grid.length][grid[0].length];
-			int largestClusterSize = 0;
-		
-			for (int y = 0; y < grid.length; y++) {
-				for (int x = 0; x < grid[0].length; x++) {
-					if (grid[y][x] > 0 && !visited[y][x]) {
-						// Count tiles in the current connected component
-						int clusterSize = floodFill(grid, visited, y, x);
-						largestClusterSize = Math.max(largestClusterSize, clusterSize);
-					}
+		boolean[][] visited = new boolean[grid.length][grid[0].length];
+		int largestClusterSize = 0;
+	
+		for (int y = 0; y < grid.length; y++) {
+			for (int x = 0; x < grid[0].length; x++) {
+				if (grid[y][x] > 0 && !visited[y][x]) {
+					// Count tiles in the current connected component
+					int clusterSize = floodFill(grid, visited, y, x);
+					largestClusterSize = Math.max(largestClusterSize, clusterSize);
 				}
 			}
-		
-			return largestClusterSize;
 		}
 	
-		private static int floodFill(int[][] grid, boolean[][] visited, int y, int x) {
-			if (y < 0 || y >= grid.length || x < 0 || x >= grid[0].length || visited[y][x] || grid[y][x] == 0) {
-				return 0;
-			}
-			
-			visited[y][x] = true;
-			
-		
-			int count = 1;
-			
-			count += floodFill(grid, visited, y - 1, x); // Up
-			count += floodFill(grid, visited, y + 1, x); // Down
-			count += floodFill(grid, visited, y, x - 1); // Left
-			count += floodFill(grid, visited, y, x + 1); // Right
-			
-			return count;
+		return largestClusterSize;
+	}
+
+	private static int floodFill(int[][] grid, boolean[][] visited, int y, int x) {
+		if (y < 0 || y >= grid.length || x < 0 || x >= grid[0].length || visited[y][x] || grid[y][x] == 0) {
+			return 0;
 		}
+		
+		visited[y][x] = true;
+		
+	
+		int count = 1;
+		
+		count += floodFill(grid, visited, y - 1, x); // Up
+		count += floodFill(grid, visited, y + 1, x); // Down
+		count += floodFill(grid, visited, y, x - 1); // Left
+		count += floodFill(grid, visited, y, x + 1); // Right
+		
+		return count;
+	}
 	
 	public static long walk(List<Robot> robots, long numberOfSteps, Point fieldSize) {
 		for (long i = 0; i < numberOfSteps; i++){
