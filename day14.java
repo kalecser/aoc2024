@@ -15,7 +15,7 @@ class Day13 {
 	
 	public static void main(String[] args) {
 		System.out.println("Sample phase one result, expected: 12, actual: " + walk(parse(sample), 100, new Point(11, 7)));
-		System.out.println("Actual phase one result, expected: 12, actual: " + walk(parse(input), 100, new Point(101, 103)));
+		System.out.println("Actual phase one result, expected: 218619120, actual: " + walk(parse(input), 100, new Point(101, 103)));
 		System.out.println("Actual phase two result, expected: 7055, actual:" + walk(parse(input), 10000, new Point(101, 103)));
 		
 	}
