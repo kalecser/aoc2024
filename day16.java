@@ -11,7 +11,7 @@ class Day16 {
 		System.out.println("Sample phase one result, expected: 7036, actual: " + walkAndReturnPoints(parse(sample), false));
 		System.out.println("Actual phase one result, expected: 160624, actual: " + walkAndReturnPoints(parse(input), false));
 		System.out.println("Sample phase two result, expected: 7036, actual: " + walkAndReturnPoints(parse(sample), true));
-		System.out.println("Sample phase two result, expected: 7036, actual: " + walkAndReturnPoints(parse(input), true));
+		System.out.println("Sample phase two result, expected: 692, actual: " + walkAndReturnPoints(parse(input), true));
 		
 	}
 	
@@ -28,23 +28,40 @@ class Day16 {
 			return bestSpots.size();
 		}
 		
+		
+		
 		return pathByScore.keySet().iterator().next();
 	}
 	
+	public static long iter = 0;
+	
 	public static void walkAndAccumulateScore(Tile t, char facing, Map<Long, Set<Point>> pathByScore, long currentScore, Map<Long, Long> visited, Stack<Point> stack) {
+		
+		if (currentScore > 160624) return;
 		
 		stack.push(t.p);
 		
 		try {
-			Long bearing = ((long) t.id << 32) | (facing & 0xFFFFFFFFL);
-			
-			if (visited.containsKey(bearing)) {
-				if (visited.get(bearing) < currentScore) {
-					return;
-				}
+			switch (facing) {
+				case 'E':
+					if (t.distanceEast <= currentScore) return;
+					t.distanceEast = currentScore;
+					break;
+				case 'W':
+					if (t.distanceWest <= currentScore) return;
+					t.distanceWest = currentScore;
+					break;
+				case 'N':
+					if (t.distanceNorth <= currentScore) return;
+					t.distanceNorth = currentScore;
+					break;
+				case 'S':
+					if (t.distanceSouth <= currentScore) return;
+					t.distanceSouth = currentScore;
+					break;
+				default:
+					break;
 			}
-			
-			visited.put(bearing, currentScore);
 			
 			if (t.type == '#') { //wall
 				return;
@@ -128,6 +145,11 @@ class Day16 {
 		public Point p;
 		public char[][] map;
 		public int id;
+		
+		public long distanceNorth = Long.MAX_VALUE;
+		public long distanceSouth = Long.MAX_VALUE;
+		public long distanceEast = Long.MAX_VALUE;
+		public long distanceWest = Long.MAX_VALUE;
 	}
 	
 	static String sample =	"""
