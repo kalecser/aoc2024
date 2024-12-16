@@ -37,7 +37,6 @@ class Day16 {
 	
 	public static void walkAndAccumulateScore(Tile t, char facing, Map<Long, Set<Point>> pathByScore, long currentScore, Map<Long, Long> visited, Stack<Point> stack) {
 		
-		if (currentScore > 160624) return;
 		
 		stack.push(t.p);
 		
