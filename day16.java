@@ -37,34 +37,34 @@ class Day16 {
 	
 	public static void walkAndAccumulateScore(Tile t, char facing, Map<Long, Set<Point>> pathByScore, long currentScore, Map<Long, Long> visited, Stack<Point> stack) {
 		
+		switch (facing) {
+			case 'E':
+				if (t.distanceEast <= currentScore) return;
+				t.distanceEast = currentScore;
+				break;
+			case 'W':
+				if (t.distanceWest <= currentScore) return;
+				t.distanceWest = currentScore;
+				break;
+			case 'N':
+				if (t.distanceNorth <= currentScore) return;
+				t.distanceNorth = currentScore;
+				break;
+			case 'S':
+				if (t.distanceSouth <= currentScore) return;
+				t.distanceSouth = currentScore;
+				break;
+			default:
+				break;
+		}
+		
+		if (t.type == '#') { //wall
+			return;
+		}
 		
 		stack.push(t.p);
 		
 		try {
-			switch (facing) {
-				case 'E':
-					if (t.distanceEast <= currentScore) return;
-					t.distanceEast = currentScore;
-					break;
-				case 'W':
-					if (t.distanceWest <= currentScore) return;
-					t.distanceWest = currentScore;
-					break;
-				case 'N':
-					if (t.distanceNorth <= currentScore) return;
-					t.distanceNorth = currentScore;
-					break;
-				case 'S':
-					if (t.distanceSouth <= currentScore) return;
-					t.distanceSouth = currentScore;
-					break;
-				default:
-					break;
-			}
-			
-			if (t.type == '#') { //wall
-				return;
-			}
 			
 			if (t.type == 'E') {
 				Set<Point> s = pathByScore.getOrDefault(currentScore, new HashSet<Point>());
