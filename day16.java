@@ -16,11 +16,11 @@ class Day16 {
 	}
 	
 	public static long walkAndReturnPoints(Map<Point, Tile> map, boolean phaseTwo) {
+		max_score = Long.MAX_VALUE;
 		Tile start = findTile(map, 'S');
 		
 		Map<Long, Set<Point>> pathByScore = new TreeMap<Long,Set<Point>>();
-		Map<Long, Long> visited = new TreeMap<Long, Long>();
-		walkAndAccumulateScore(start, 'E', pathByScore, 0l, visited, new Stack<Point>());
+		walkAndAccumulateScore(start, 'E', pathByScore, 0l, new Stack<Point>());
 	
 		Set<Point> bestSpots = new HashSet<>();
 		if (phaseTwo) {
@@ -34,8 +34,11 @@ class Day16 {
 	}
 	
 	public static long iter = 0;
+	public static long max_score = Long.MAX_VALUE;
 	
-	public static void walkAndAccumulateScore(Tile t, char facing, Map<Long, Set<Point>> pathByScore, long currentScore, Map<Long, Long> visited, Stack<Point> stack) {
+	public static void walkAndAccumulateScore(Tile t, char facing, Map<Long, Set<Point>> pathByScore, long currentScore, Stack<Point> stack) {
+		
+		if (currentScore > max_score) return;
 		
 		switch (facing) {
 			case 'E':
@@ -70,25 +73,26 @@ class Day16 {
 				Set<Point> s = pathByScore.getOrDefault(currentScore, new HashSet<Point>());
 				s.addAll(stack);
 				pathByScore.put(currentScore, s);
+				max_score = Math.min(max_score, currentScore);
 				return;
 			}
 			
 			if (facing == 'E') {
-				walkAndAccumulateScore(t.east, 'E', pathByScore, currentScore + 1, visited, stack);
-				walkAndAccumulateScore(t.north, 'N', pathByScore, currentScore + 1001, visited, stack);
-				walkAndAccumulateScore(t.south, 'S', pathByScore, currentScore + 1001, visited, stack);
+				walkAndAccumulateScore(t.east, 'E', pathByScore, currentScore + 1, stack);
+				walkAndAccumulateScore(t.north, 'N', pathByScore, currentScore + 1001, stack);
+				walkAndAccumulateScore(t.south, 'S', pathByScore, currentScore + 1001, stack);
 			} else if (facing == 'N') {
-				walkAndAccumulateScore(t.north, 'N', pathByScore, currentScore + 1, visited, stack);
-				walkAndAccumulateScore(t.east, 'E', pathByScore, currentScore + 1001, visited, stack);
-				walkAndAccumulateScore(t.west, 'W', pathByScore, currentScore + 1001, visited, stack);
+				walkAndAccumulateScore(t.north, 'N', pathByScore, currentScore + 1, stack);
+				walkAndAccumulateScore(t.east, 'E', pathByScore, currentScore + 1001, stack);
+				walkAndAccumulateScore(t.west, 'W', pathByScore, currentScore + 1001, stack);
 			} else if (facing == 'W') {
-				walkAndAccumulateScore(t.west, 'W', pathByScore, currentScore + 1, visited, stack);
-				walkAndAccumulateScore(t.north, 'N', pathByScore, currentScore + 1001, visited, stack);
-				walkAndAccumulateScore(t.south, 'S', pathByScore, currentScore + 1001, visited, stack);
+				walkAndAccumulateScore(t.west, 'W', pathByScore, currentScore + 1, stack);
+				walkAndAccumulateScore(t.north, 'N', pathByScore, currentScore + 1001, stack);
+				walkAndAccumulateScore(t.south, 'S', pathByScore, currentScore + 1001, stack);
 			} else if (facing == 'S') {
-				walkAndAccumulateScore(t.south, 'S', pathByScore, currentScore + 1, visited, stack);
-				walkAndAccumulateScore(t.east, 'E', pathByScore, currentScore + 1001, visited, stack);
-				walkAndAccumulateScore(t.west, 'W', pathByScore, currentScore + 1001, visited, stack);
+				walkAndAccumulateScore(t.south, 'S', pathByScore, currentScore + 1, stack);
+				walkAndAccumulateScore(t.east, 'E', pathByScore, currentScore + 1001, stack);
+				walkAndAccumulateScore(t.west, 'W', pathByScore, currentScore + 1001, stack);
 			}
 		} finally {
 			stack.pop();
