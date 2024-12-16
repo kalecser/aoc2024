@@ -17,7 +17,7 @@ class Day15 {
 		System.out.println("Sample phase one result, expected: 10092, actual: " + simulate(parse(sample, false)));
 		System.out.println("Actual phase one result, expected: 1515788, actual: " + simulate(parse(input, false)));
 		System.out.println("Sample phase two result, expected: 9021, actual: " + simulate(parse(sample, true)));
-		System.out.println("Actual phase two result, expected: 9021, actual: " + simulate(parse(input, true)));
+		System.out.println("Actual phase two result, expected: 1516544, actual: " + simulate(parse(input, true)));
 	}
 	
 	public static long simulate(Maze m) {
