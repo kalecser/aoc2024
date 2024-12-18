@@ -2,7 +2,6 @@
 	
 echo "Part 1 sample expected: 22 actual: " . countSteps(7, 12, sample()) . "\n";
 echo "Part 1 actual expected: 234 actual: " . countSteps(71, 1024, input()) . "\n";
-echo "Part 2 sample expected: 6,1 actual: " . getCoordinatesFirstObstruction(7, sample()) . "\n";
 echo "Part 2 actual expected: 58,19 actual: " . getCoordinatesFirstObstruction(71, input()) . "\n";
 
 function getCoordinatesFirstObstruction($size, $input) {
@@ -10,28 +9,24 @@ function getCoordinatesFirstObstruction($size, $input) {
 		return array_map('intval', explode(',', trim($line)));
 	}, array_filter(explode("\n", trim($input))));
 	
-	$grid = [];
-	
-	$i = 0;
-	//simulate obstructions;
-	foreach ($coordinates as $c) {
-		$i++;
-		if (($i % 100) == 0) { 
-			var_dump(((int)(($i/count($coordinates)) * 100)) . "%");
+	$length = count($coordinates);
+	$end = count($coordinates);
+	$step = $length;
+	while (true) {
+		if ($step == 0) {
+			return $coordinates[$end][0] . "," . $coordinates[$end][1];
 		}
-		$grid[(int)$c[1]][(int)$c[0]] = '#';
-		$count = internalCountSteps($size, $grid);
 		
-		if ($count == PHP_INT_MAX) {
-			var_dump("here?");
-			return $c[0] . "," . $c[1];
+		if (countSteps($size, $end, $input) == PHP_INT_MAX) {
+			$step = (int)($step / 2);
+			$end = $end - $step;
+		} else {
+			$step = (int)($step / 2);
+			$end = $end + $step;
 		}
 	}
-	
-	return "error";
-	
 }
-
+	
 function countSteps($size, $bytes_to_fall, $input) {
 	
 	$coordinates = array_map(function($line) {
