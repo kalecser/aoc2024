@@ -11,21 +11,93 @@ import java.io.IOException;
 import java.util.List;
 import java.awt.Point;
 
-class Day15 {
+class Day17 {
 	
 	public static void main(String[] args) {
-		System.out.println("Sample phase one result, expected: 1,6,7,4,3,0,5,0,6, actual: " + computeAndReturnOutput(parseComputer(sample)));
+		System.out.println("Sample phase one result, expected: 4,6,3,5,6,3,5,2,1,0 actual: " + computeAndReturnOutput(parseComputer(sample)));
+		System.out.println("Actual phase one result, expected: 1,6,7,4,3,0,5,0,6 actual: " + computeAndReturnOutput(parseComputer(input)));
+	
+		System.out.println("Actual phase two result, expected: 21614833863330253 actual: " + findQuineChangingRegisterA(parseComputer(input)));
+	}
+	
+	public static long findQuineChangingRegisterA(Computer c) {
+		
+		/*
+		2,4, 1,3, 7,5, 0,3, 1,5, 4,1, 5,5, 3,0
+		
+		pseudo-code: program
+		01: b = a % 8
+		02: b = b % 3
+		03: c = a / (2^b)
+		04: a = a / (2^3)
+		05: b ^ 5
+		06: b ˆ c
+		07: print b
+		08: NEZ repeat
+		
+		notice: a only changes in decrements of 3 bits -> line 04: a = a / (2^3)
+		*/
+		
+		byte[] digitsNumber3Bits = new byte[]{0,1,2,3,4,5,6,7};
+		byte[] candidate = new byte[16]; //16 is the size of the program, see above
+		byte[] outcome = new byte[]{2,4, 1,3, 7,5, 0,3, 1,5, 4,1, 5,5, 3,0}; //the program
+		
+		for(byte i = 0; i < candidate.length; i++){
+			candidate[i] = 1; //initialize with 1
+		}
+		
+		return findNumber(digitsNumber3Bits, candidate, outcome, 0, c);
+	}
+	
+	public static Long findNumber(byte[] digitsNumber3Bits, byte[] candidate, byte[] expected, int word, Computer c) {
+		if (word == expected.length) {
+			String num = "";
+			for(var d : candidate) {
+				num = d + num;
+			}
+			var decimal = Long.parseLong(num, 8);
+			return decimal;
+		} 
+	
+		for (var digit : digitsNumber3Bits) {
+			candidate[expected.length - word - 1] = digit;
+			
+			String num = "";
+			for(var d : candidate) {
+				num = d + num;
+			}
+			var decimal = Long.parseLong(num, 8);
+			
+			byte[] result = cloneComputerAndReturnOutputGivenRegisterA(decimal, c);
+			if (result.length == expected.length && result[expected.length - word - 1] == expected[expected.length - word - 1]) {
+				var downstream = findNumber(digitsNumber3Bits, candidate.clone(), expected, word+1, c);
+				if (downstream != null) {
+					return downstream;
+				}
+			}
+		}
+	
+		return null;
+	}
+	
+	public static byte[] cloneComputerAndReturnOutputGivenRegisterA(long registerA, Computer c) {
+		Computer cloned = (Computer) c.clone(); // Perform shallow copy
+		
+		cloned.a = registerA;
+		while(cloned.step()) {}
+		
+		return cloned.output;
 	}
 	
 	public static String computeAndReturnOutput(Computer c) {
 		while (c.step()) {};
-		return c.output;
+		return Arrays.toString(c.output).replaceAll("\\[", "").replaceAll("\\]", "").replaceAll(" ", "");
 	}
 	
-	public static class Computer {
+	public static class Computer implements Cloneable {
 		public long a,b,c; //registers
 		public int pc; //program counter
-		public String output = "";
+		public byte[] output = new byte[0];
 		
 		public byte step = 2;
 		public byte[] program;
@@ -66,7 +138,10 @@ class Day15 {
 					b = b ^ c;
 					break;
 				case OpCode.OUT:
-					output += (combo % 8) + ",";
+					var old_output = output;
+					output = new byte[output.length + 1];
+					System.arraycopy(old_output, 0, output, 0, old_output.length);
+					output[old_output.length] = (byte)(combo % 8);
 					break;
 				case OpCode.BDV:
 					b = a / (long)(Math.pow(2, combo));
@@ -134,6 +209,19 @@ class Day15 {
 			sb.append("\n");
 			return sb.toString();
 		}
+		
+		@Override
+		public Computer clone() {
+			try {
+				Computer cloned = (Computer) super.clone(); // Perform shallow copy
+				cloned.program = this.program.clone();
+				cloned.output = this.output.clone();
+				
+				return cloned;
+			} catch (CloneNotSupportedException e) {
+				throw new AssertionError("Cloning failed", e); // Should not happen
+			}
+		}
 	}
 	
 	public static Computer parseComputer(String input) {
@@ -164,13 +252,28 @@ class Day15 {
 	}
 	
 	static String sample =	"""
+							Register A: 729
+							Register B: 0
+							Register C: 0
+							
+							Program: 0,1,5,4,3,0
+							""";
+	
+	static String sample2 =	"""
+						Register A: 2024
+						Register B: 0
+						Register C: 0
+						
+						Program: 0,3,5,4,3,0
+						""";
+
+	static String input =	"""
 							Register A: 63687530
 							Register B: 0
 							Register C: 0
 							
-							Program: 2,4,1,3,7,5,0,3,1,5,4,1,5,5,3,0
-							""";
-
-	static String input =	"""
+							Program: 2,4, 1,3, 7,5, 0,3, 1,5, 4,1, 5,5, 3,0
 							""";
 }
+
+
