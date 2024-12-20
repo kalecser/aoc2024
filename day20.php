@@ -9,13 +9,14 @@ $iterations_left = 20;
 $start_end_destinantions_result = [];
 
 $grid = parseMaze(input());
-internalCountSteps($grid);
+$distance = internalCountSteps($grid);
 
 for ($i = 1; $i < count($grid); $i++) {
 	var_dump($i);
 	for ($j = 0; $j < count($grid); $j++) {
 		$node = $grid[$i][$j];
-		if ($node->type == '.' || $node->type == 'S') {
+		if (($node->type == '.' || $node->type == 'S') && $node->distance < $distance) {
+			$start_end_destinantions_visited = [];
 			$result += countCheatsUpUntil($node, $node, $grid, $iterations_left, $iterations_left, $up_until_saving, $start_end_destinantions_visited, $start_end_destinantions_computed);
 		}
 	}
@@ -167,6 +168,7 @@ class Node {
 	public $visited = false;
 	public $listed = false;
 	public $ancestors = [];
+	public $is_main_path = false;
 	
 	public $distance = PHP_INT_MAX;
 	
