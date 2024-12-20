@@ -1,30 +1,65 @@
 <?php
 	
 //echo "Part 1 sample expected: 22 actual: " . countSteps(7, 12, sample()) . "\n";
+ini_set('memory_limit', '15560M');
 
-$grid = parseMaze(sample());
+$up_until_saving = -100;
+$result = 0;
+$iterations_left = 20;
+$start_end_destinantions_result = [];
+
+$grid = parseMaze(input());
 internalCountSteps($grid);
 
-$possible_cheats = [[2,0],[-2,0],[0,2],[0,-2],[3,0],[-3,0],[0,3],[0,-3],[2,2],[-2,-2],[2,-2],[-2,2]];
-$savings = [];
 for ($i = 1; $i < count($grid); $i++) {
+	var_dump($i);
 	for ($j = 0; $j < count($grid); $j++) {
 		$node = $grid[$i][$j];
-		if ($node->type == '.') {
-			foreach ($possible_cheats as $c) {
-				$teleported_to_node = $grid[$node->position_array_xy[1] + $c[0]][$node->position_array_xy[0] + $c[1]] ??null;
-				if (!$teleported_to_node == null && $teleported_to_node->type == '.'){
-					$savings[]= $node->distance - $teleported_to_node->distance;
-				}
-					
-			}
+		if ($node->type == '.' || $node->type == 'S') {
+			$result += countCheatsUpUntil($node, $node, $grid, $iterations_left, $iterations_left, $up_until_saving, $start_end_destinantions_visited, $start_end_destinantions_computed);
 		}
 	}
 }
-	
-sort($savings);
-var_dump($savings);
 
+var_dump($result);
+
+function countCheatsUpUntil($start_node, $node, $grid, $iterations_total, $iterations_left, $up_until_saving, &$start_end_destinantions_visited, &$start_end_destinantions_computed) {
+	if ($iterations_left == 0) return 0;
+	
+	$possible_cheats = [[1,0],[-1,0],[0,1],[0,-1]];
+	$result = 0;
+	foreach ($possible_cheats as $c) {
+		$teleported_to_node = $grid[$node->position_array_xy[1] + $c[0]][$node->position_array_xy[0] + $c[1]] ??null;
+		
+		if ($teleported_to_node == null) {
+			continue;
+		}
+		
+		$inner_visit_key = $start_node->position_array_xy[0] . ':' . $start_node->position_array_xy[1] . $node->position_array_xy[0] . $node->position_array_xy[1] . ':' .$iterations_left . ':' .  $teleported_to_node->position_array_xy[0] . ':' . $teleported_to_node->position_array_xy[1];
+		if ($start_end_destinantions_visited[$inner_visit_key] ?? false) {
+			continue;
+		}
+		
+		$start_end_destinantions_visited[$inner_visit_key] = true;
+		
+		if (($teleported_to_node->type == '.' || $teleported_to_node->type == 'E') && $teleported_to_node->distance > $start_node->distance){
+			$s = ($start_node->distance - $teleported_to_node->distance) + (($iterations_total - $iterations_left) + 1);
+			
+			
+			if ($s <= $up_until_saving) {
+				if ($start_end_destinantions_computed[var_export($start_node->position_array_xy, true) . var_export($teleported_to_node->position_array_xy, true)] ??true) {
+					$start_end_destinantions_computed[var_export($start_node->position_array_xy, true) . var_export($teleported_to_node->position_array_xy, true)] = false;
+					$result += 1;
+				}
+			}
+		}
+		
+		$result += countCheatsUpUntil($start_node, $teleported_to_node, $grid, $iterations_total, $iterations_left - 1, $up_until_saving, $start_end_destinantions_visited, $start_end_destinantions_computed);
+		
+	}
+	
+	return $result;
+}
 
 function parseMaze(string $mazeString): array {
 	$lines = explode("\n", trim($mazeString));
