@@ -1,6 +1,9 @@
 <?php
-ini_set('memory_limit', '2560M');
+ini_set('memory_limit', '2506M');
 
+	global $bad_prefixes;
+	$bad_prefixes = [];
+	
 	var_dump(
 		getTotal('129#') + 
 		getTotal('974#') +
@@ -10,7 +13,7 @@ ini_set('memory_limit', '2560M');
 	);
 
 	function getTotal($input) {
-		var_dump($input);
+	
 		global $pad0;
 		$pad0 = [
 			['7','8','9'],
@@ -29,42 +32,38 @@ ini_set('memory_limit', '2560M');
 		$pad1 = findShortestPaths($pad1);
 		
 		
-		$result = ['min' => PHP_INT_MAX];
+		$result = ["min" => PHP_INT_MAX];
 		encodePad(str_split($input), 0, $result, '', $pad0);
 		
 		
-		for ($i = 0; $i < 2; $i++) {
-			$result1 = ['min' => PHP_INT_MAX];
-			foreach (array_keys($result) as $e) {
+		for ($i =0; $i < 2; $i++) {
+			$keys = array_keys($result);
+			$keys = array_filter($keys, fn($k) => strlen($k) <= $result['min']);
+			
+			
+			
+			$result1 = ["min" => PHP_INT_MAX];
+			foreach ($keys as $e) {
+				if ($e == "min") continue;
+				//if (strlen($e) > $result['min']) continue;
 				encodePad(str_split($e), 0, $result1, '', $pad1);
 			}
-			$result = $result1;
-			var_dump('count ' . count($result1));
+			$result = $result1;	
 		}
 		
-		$min = PHP_INT_MAX;
-		foreach (array_keys($result1) as $e) {
-			if (strlen($e) < $min)
-				$min = strlen($e);
-		}
+		var_dump($result1['min']);
 		
-		return $min * (int)$input;
+		return $result1['min'] * (int)$input;
 	}
 	
-	function encodePad($input, $index, &$result, $path, &$pad) {
-		
-		if ($input == str_split('min')) return;
-		
-		if (strlen($path) > $result['min']) return;
+	
+	
+	function encodePad($input, $index, &$result, $path, $pad) {
 		
 		if (count($input) == $index) {
+			if (strlen($path) < $result['min']) array_splice($result, 0);
+			$result['min'] = min($result['min']??PHP_INT_MAX, strlen($path));
 			$result[$path] = true;
-			
-			if ($result['min'] > strlen($path)) {
-				array_splice($result, 0);
-			}
-			
-			$result['min'] = strlen($path);
 			return;
 		}
 		$previous = $input[$index - 1]??'#';
