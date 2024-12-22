@@ -31,14 +31,21 @@ ini_set('memory_limit', '2506M');
 		];
 		$pad1 = findShortestPaths($pad1);
 		
-        
-        $count = countButtonPresses(str_split($input), 3, $pad0, $pad1);
+        $memory = [];
+        $count = countButtonPresses(str_split($input), 26, $pad0, $pad1, $memory);
         return $count * (int)$input;
         
     }
     
-    function countButtonPresses($input_arr, $level, $pad0, $pad1) {
-        $pad = $level == 3 ?$pad0 :$pad1;
+    function countButtonPresses($input_arr, $level, $pad0, $pad1, &$memory) {
+        
+        $cache_key = (implode('', $input_arr) . $level);
+
+        if (array_key_exists($cache_key, $memory))  {
+            return $memory[$cache_key];
+        }
+        
+        $pad = $level == 26 ?$pad0 :$pad1;
         $result = 0;
         for ($i = 0; $i < count($input_arr); $i++) {
             $key = ($input_arr[$i -1] ?? '#') . $input_arr[$i];
@@ -48,10 +55,12 @@ ini_set('memory_limit', '2506M');
                 $result += min(array_map("strlen", $possible_combinationsPressDirection));
             } else {
                 $min_press_direction = PHP_INT_MAX;
-                foreach ($possible_combinationsPressDirection as $p) $min_press_direction = min($min_press_direction, countButtonPresses(str_split($p), $level - 1, $pad0, $pad1));
+                foreach ($possible_combinationsPressDirection as $p) $min_press_direction = min($min_press_direction, countButtonPresses(str_split($p), $level - 1, $pad0, $pad1, $memory));
                 $result += ($min_press_direction);
             }
         }
+        
+        $memory[$cache_key] = $result;
         
         return $result;
     }
