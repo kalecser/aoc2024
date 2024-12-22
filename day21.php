@@ -31,59 +31,37 @@ ini_set('memory_limit', '2506M');
 		];
 		$pad1 = findShortestPaths($pad1);
 		
-		
-		$result = ["min" => PHP_INT_MAX];
-		encodePad(str_split($input), 0, $result, '', $pad0);
-		
-		
-		for ($i =0; $i < 2; $i++) {
-			$keys = array_keys($result);
-			$keys = array_filter($keys, fn($k) => strlen($k) <= $result['min']);
-			
-			
-			
-			$result1 = ["min" => PHP_INT_MAX];
-			foreach ($keys as $e) {
-				if ($e == "min") continue;
-				//if (strlen($e) > $result['min']) continue;
-				encodePad(str_split($e), 0, $result1, '', $pad1);
-			}
-			$result = $result1;	
-		}
-		
-		var_dump($result1['min']);
-		
-		return $result1['min'] * (int)$input;
-	}
-	
-	
-	
-	function encodePad($input, $index, &$result, $path, $pad) {
-		
-		if (count($input) == $index) {
-			if (strlen($path) < $result['min']) array_splice($result, 0);
-			$result['min'] = min($result['min']??PHP_INT_MAX, strlen($path));
-			$result[$path] = true;
-			return;
-		}
-		$previous = $input[$index - 1]??'#';
-		$current = $input[$index];
-		
-		$possibilities = $previous == $current ?['#'] :$pad[$previous.$current];
-		foreach ($possibilities as $e) {
-			encodepad($input, $index + 1, $result, $path . $e, $pad);
-		}
-		
-	}
+        
+        $count = countButtonPresses(str_split($input), 3, $pad0, $pad1);
+        return $count * (int)$input;
+        
+    }
+    
+    function countButtonPresses($input_arr, $level, $pad0, $pad1) {
+        $pad = $level == 3 ?$pad0 :$pad1;
+        $result = 0;
+        for ($i = 0; $i < count($input_arr); $i++) {
+            $key = ($input_arr[$i -1] ?? '#') . $input_arr[$i];
+            $possible_combinationsPressDirection = $pad[$key] ?? ['#'];
+            
+            if ($level == 1) {
+                $result += min(array_map("strlen", $possible_combinationsPressDirection));
+            } else {
+                $min_press_direction = PHP_INT_MAX;
+                foreach ($possible_combinationsPressDirection as $p) $min_press_direction = min($min_press_direction, countButtonPresses(str_split($p), $level - 1, $pad0, $pad1));
+                $result += ($min_press_direction);
+            }
+        }
+        
+        return $result;
+    }
 	
 	function findShortestPaths($grid) {
 		$paths = [];
 		
-		// Get grid dimensions
 		$rows = count($grid);
 		$cols = count($grid[0]);
 		
-		// Build paths for every pair of characters
 		$positions = [];
 		foreach ($grid as $r => $row) {
 			foreach ($row as $c => $char) {
@@ -103,8 +81,7 @@ ini_set('memory_limit', '2506M');
 		
 		return $paths;
 	}
-	
-	// Helper function to find neighbors and their bearings
+
 	function getNeighborsWithBearing($grid, $x, $y, $rows, $cols) {
 		$neighbors = [];
 		$directions = [
@@ -118,16 +95,15 @@ ini_set('memory_limit', '2506M');
 			$nx = $x + $dir[0];
 			$ny = $y + $dir[1];
 			if ($nx >= 0 && $nx < $rows && $ny >= 0 && $ny < $cols && $grid[$nx][$ny] !== '') {
-				$neighbors[] = [$nx, $ny, $dir[2]]; // Add coordinates and bearing
+				$neighbors[] = [$nx, $ny, $dir[2]];
 			}
 		}
 		
 		return $neighbors;
 	}
 	
-	// BFS function to find all shortest paths with bearings
 	function bfs($grid, $start, $end, $rows, $cols) {
-		$queue = [[$start, []]]; // Start with empty bearings list
+		$queue = [[$start, []]];
 		$visited = [];
 		$shortestPaths = [];
 		$shortestLength = PHP_INT_MAX;
@@ -137,7 +113,6 @@ ini_set('memory_limit', '2506M');
 			$x = $current[0];
 			$y = $current[1];
 			
-			// Stop processing this path if it's longer than the shortest found
 			if (count($bearings) > $shortestLength) {
 				continue;
 			}
@@ -159,63 +134,12 @@ ini_set('memory_limit', '2506M');
 				}
 			}
 			
-			$visited[] = "$x,$y"; // Mark current position as visited
+			$visited[] = "$x,$y";
 		}
 		
 		return $shortestPaths;
 	}
 	
-	/*
-	var_dump($resultPad0);
-	
-	$resultPad1 = '';
-	$current = '#';
-	foreach (str_split($resultPad0) as $c) {
-	if ($current == $c) {
-	$resultPad1 .= '#';
-	} elseif ($current > $c) {
-	$resultPad1 .= inversePad0($pad1[$c . $current]);
-	} else {
-	$resultPad1 .= $pad1[$current . $c];
-	}
-	$current = $c;
-	}
-	var_dump($resultPad1);
-	
-	$resultPad2 = '';
-	$current = '#';
-	foreach (str_split($resultPad1) as $c) {
-	if ($current == $c) {
-	$resultPad2 .= '#';
-	} elseif ($current > $c) {
-	$resultPad2 .= inversePad0($pad1[$c . $current]);
-	} else {
-	$resultPad2 .= $pad1[$current . $c];
-	}
-	$current = $c;
-	}
-	var_dump($resultPad2);
-	var_dump(strlen($resultPad2) . '*' . (int)$input);
-
-	*/
-	
-function inversePad($input) {
-	$result = '';
-	foreach(str_split($input) as $c) {
-		if ($c == '^')
-			$result .= 'v';
-		elseif ($c =='v')
-			$result .= '^';
-		elseif ($c =='<')
-			$result .= '>';
-		elseif ($c =='>')
-			$result .= '<';
-		elseif ($c =='#')
-			$result .= '#';
-	}
-	
-	return $result;
-}	
 function sample() {
 	return <<<EOD
 	980#
@@ -229,6 +153,3 @@ function input() {
 }
 
 ?>
-
-//<v#<##>>^#v##<^#>#<v<#>>^#v#^#<v<#>>^#<v#>#^#<#v<#>>^#v#^#<v#<#>>^###<#>v#^#
-//<v#<##>>^#v##<^#>#<v<#>>^#v#^#<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A
