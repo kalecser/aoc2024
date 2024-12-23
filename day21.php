@@ -2,7 +2,7 @@
 
     echo "Part 1 sample expected: 126384 actual: " . solve(sample(), 3) . "\n";
     echo "Part 1 actual expected: 213536 actual: " . solve(input(), 3) . "\n";
-    echo "Part 1 actual expected: 126384 actual: " . solve(input(), 26) . "\n";
+    echo "Part 2 actual expected: 258369757013802 actual: " . solve(input(), 26) . "\n";
 
     function solve($input, $total_pads) {
         $lines = explode("\n", $input);
