@@ -1,69 +1,79 @@
 <?php
 
     ini_set('memory_limit', '200M');
-
-    $numbers = explode("\n", input());
-
-
-    $profit_by_pattern = [];
     
-    $total = 0;
-    foreach ($numbers as $initial_num) {
-        $num = (int)$initial_num;
+    $solution_sample = solve(sample());
+    $solution_input = solve(input());
+    
+    
+    echo "Part 1 sample expected: 37990510 actual: " . $solution_sample[0] . "\n";
+    echo "Part 1 actual expected: 17163502021 actual: " . $solution_input[0] . "\n";
+    echo "Part 2 sample expected: 23 actual: " . $solution_sample[1] . "\n";
+    echo "Part 2 actual expected: 1937 actual: " . $solution_input[1] . "\n";
+
+    function solve($input) {
+        $numbers = explode("\n", $input);
+    
+    
+        $profit_by_pattern = [];
         
-        $prev0 = PHP_INT_MIN;
-        $prev1 = PHP_INT_MIN;
-        $prev2 = PHP_INT_MIN;
-        $prev3 = PHP_INT_MIN;
-        
-        
-        for ($i =0; $i < 2000; $i++) {
-            //mix with times 64 and then prune
-            $mix = $num*64;
-            $num = $num ^ $mix;
-            $num = $num % 16777216;
+        $total = 0;
+        foreach ($numbers as $initial_num) {
+            $num = (int)$initial_num;
             
-            //mix with divided by 32 and then prune
-            $mix = (int)($num/32);
-            $num = $num ^ $mix;
-            $num = $num % 16777216;
+            $prev0 = PHP_INT_MIN;
+            $prev1 = PHP_INT_MIN;
+            $prev2 = PHP_INT_MIN;
+            $prev3 = PHP_INT_MIN;
             
-            //mix with times2048 and then prune
-            $mix = $num * 2048;
-            $num = $num ^ $mix;
-            $num = $num % 16777216;
             
-            $price = $num % 10;
             
-            if ($prev3 > PHP_INT_MIN) {
-                $key = (($prev2 - $prev3) * 100000) + (($prev1 - $prev2) * 1000) + (($prev0 - $prev1) * 10) + ($price - $prev0);
-                $profit_by_pattern[$initial_num][$key] ??= $price;
+            for ($i =0; $i < 2000; $i++) {
+                //mix with times 64 and then prune
+                $mix = $num*64;
+                $num = $num ^ $mix;
+                $num = $num % 16777216;
+                
+                //mix with divided by 32 and then prune
+                $mix = (int)($num/32);
+                $num = $num ^ $mix;
+                $num = $num % 16777216;
+                
+                //mix with times2048 and then prune
+                $mix = $num * 2048;
+                $num = $num ^ $mix;
+                $num = $num % 16777216;
+                
+                $price = $num % 10;
+                
+                if ($prev3 > PHP_INT_MIN) {
+                    $key = (($prev2 - $prev3) * 100000) + (($prev1 - $prev2) * 1000) + (($prev0 - $prev1) * 10) + ($price - $prev0);
+                    $profit_by_pattern[$initial_num][$key] ??= $price;
+                }
+                
+                $prev3 = $prev2;
+                $prev2 = $prev1;
+                $prev1 = $prev0;
+                $prev0 = $price;
             }
-            
-            $prev3 = $prev2;
-            $prev2 = $prev1;
-            $prev1 = $prev0;
-            $prev0 = $price;
+            $total += $num;
         }
         
-        
-        $total += $num;
-    }
-    
-    $final_profit = [];
-    foreach ($numbers as $initial_num) {
-        foreach ($profit_by_pattern[$initial_num] as $pattern => $profit) {
-            $final_profit[$pattern] ??= 0;
-            $final_profit[$pattern] += $profit;
+        $final_profit = [];
+        foreach ($numbers as $initial_num) {
+            foreach ($profit_by_pattern[$initial_num] as $pattern => $profit) {
+                $final_profit[$pattern] ??= 0;
+                $final_profit[$pattern] += $profit;
+            }
         }
+        
+        $max_profit = PHP_INT_MIN;
+        foreach (array_values($final_profit) as $p) {
+            $max_profit = max($p, $max_profit);
+        }
+        
+        return [$total, $max_profit];
     }
-    
-    $max_profit = PHP_INT_MIN;
-    foreach (array_values($final_profit) as $p) {
-        $max_profit = max($p, $max_profit);
-    }
-    
-    var_dump($max_profit);
     
     
 	
