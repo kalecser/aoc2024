@@ -1,6 +1,39 @@
 <?php
     echo "Part 1 sample expected: 7 actual: " . countGroupsOfThreeWithHistorian(sample()) . "\n";
     echo "Part 1 actual expected: 1775 actual: " . countGroupsOfThreeWithHistorian(input()) . "\n";
+    echo "Part 2 sample expected: co,de,ka,ta actual: " . getComputersBiggestGroup(sample2()) . "\n";
+    echo "Part 2 sample expected: bw,dr,du,ha,mm,ov,pj,qh,tz,uv,vq,wq,xw actual: " . getComputersBiggestGroup(input()) . "\n";
+    
+    function getComputersBiggestGroup($input) {
+        $connections = parse($input);
+        
+        $groups = [];
+        foreach ($connections as $computer => $others) {
+            $group=[];
+            $group[]=$computer;
+            foreach ($others as $other) {
+                $found = true;
+                foreach ($group as $g) {
+                    if (!in_array($g, $connections[$other]))
+                        $found = false;
+                }
+                if ($found) $group[]=$other;
+            }
+            sort($group);
+            $groups[implode(',', $group)] = true;
+        }
+        
+        $biggest_group = '';
+        $size = max(array_map(fn($e) => strlen($e), array_keys($groups)));
+        foreach ($groups as $g => $_value) {
+            if (strlen($g) == $size) {
+                $biggest_group = $g;
+            }
+        }
+        
+        
+        return $biggest_group;
+    }
     
     function countGroupsOfThreeWithHistorian($input) {
         $connections = parse($input);
@@ -12,8 +45,6 @@
                     
                     if (!in_array($computer, $connections[$perm[0]])) continue;
                     if (!in_array($perm[1], $connections[$perm[0]])) continue;
-                    if (!in_array($computer, $connections[$perm[1]])) continue;
-                    if (!in_array($perm[0], $connections[$perm[1]])) continue;
                     
                     $perm[] = $computer;
                     sort($perm);
@@ -92,6 +123,19 @@ function sample() {
     td-yn
     EOD;	
 }
+
+function sample2() {
+    return <<<EOD
+    ka-co
+    ta-co
+    de-co
+    ta-ka
+    de-ta
+    ka-de
+    ka-xx
+    EOD;	
+}
+
 
 function input() {
 	return <<<EOD
