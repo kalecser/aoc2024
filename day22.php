@@ -1,6 +1,6 @@
 <?php
 
-    ini_set('memory_limit', '4096M');
+    ini_set('memory_limit', '350M');
 
     $numbers = explode("\n", input());
 
