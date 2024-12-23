@@ -36,8 +36,9 @@
             $price = $num % 10;
             
             if ($prev3 > PHP_INT_MIN) {
-                if (($profit_by_pattern[$initial_num][$prev2 - $prev3  . ',' . $prev1 - $prev2. ',' . $prev0 - $prev1 . ',' . $price - $prev0] ?? PHP_INT_MIN) == PHP_INT_MIN)
-                    $profit_by_pattern[$initial_num][$prev2 - $prev3  . ',' . $prev1 - $prev2. ',' . $prev0 - $prev1 . ',' . $price - $prev0] = $price;
+                $key = $prev2 - $prev3  . ',' . $prev1 - $prev2. ',' . $prev0 - $prev1 . ',' . $price - $prev0;
+                if (($profit_by_pattern[$initial_num][$key] ?? PHP_INT_MIN) == PHP_INT_MIN)
+                    $profit_by_pattern[$initial_num][$key] = $price;
             }
             
             $prev3 = $prev2;
