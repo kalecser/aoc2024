@@ -1,10 +1,21 @@
 <?php
 
+    ini_set('memory_limit', '4096M');
+
     $numbers = explode("\n", input());
 
+
+    $profit_by_pattern = [];
+    
     $total = 0;
     foreach ($numbers as $initial_num) {
         $num = (int)$initial_num;
+        
+        $prev0 = PHP_INT_MIN;
+        $prev1 = PHP_INT_MIN;
+        $prev2 = PHP_INT_MIN;
+        $prev3 = PHP_INT_MIN;
+        
         
         for ($i =0; $i < 2000; $i++) {
             //mix with times 64 and then prune
@@ -21,21 +32,46 @@
             $mix = $num * 2048;
             $num = $num ^ $mix;
             $num = $num % 16777216;
+            
+            $price = $num % 10;
+            
+            if ($prev3 > PHP_INT_MIN) {
+                if (($profit_by_pattern[$initial_num][$prev2 - $prev3  . ',' . $prev1 - $prev2. ',' . $prev0 - $prev1 . ',' . $price - $prev0] ?? PHP_INT_MIN) == PHP_INT_MIN)
+                    $profit_by_pattern[$initial_num][$prev2 - $prev3  . ',' . $prev1 - $prev2. ',' . $prev0 - $prev1 . ',' . $price - $prev0] = $price;
+            }
+            
+            $prev3 = $prev2;
+            $prev2 = $prev1;
+            $prev1 = $prev0;
+            $prev0 = $price;
         }
         
-        var_dump($initial_num . ': ' .$num);
+        
         $total += $num;
     }
     
-    var_dump($total);
+    $final_profit = [];
+    foreach ($numbers as $initial_num) {
+        foreach ($profit_by_pattern[$initial_num] as $pattern => $profit) {
+            $final_profit[$pattern] ??= 0;
+            $final_profit[$pattern] += $profit;
+        }
+    }
+    
+    $max_profit = PHP_INT_MIN;
+    foreach (array_values($final_profit) as $p) {
+        $max_profit = max($p, $max_profit);
+    }
+    
+    var_dump($max_profit);
     
     
 	
 function sample() {
 	return <<<EOD
     1
-    10
-    100
+    2
+    3
     2024
     EOD;	
 }
