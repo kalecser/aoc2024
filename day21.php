@@ -1,18 +1,19 @@
 <?php
-ini_set('memory_limit', '2506M');
 
-	global $bad_prefixes;
-	$bad_prefixes = [];
-	
-	var_dump(
-		getTotal('129#') + 
-		getTotal('974#') +
-		getTotal('805#') +
-		getTotal('671#') +
-		getTotal('386#')
-	);
+    echo "Part 1 sample expected: 126384 actual: " . solve(sample(), 3) . "\n";
+    echo "Part 1 actual expected: 213536 actual: " . solve(input(), 3) . "\n";
+    echo "Part 1 actual expected: 126384 actual: " . solve(input(), 26) . "\n";
 
-	function getTotal($input) {
+    function solve($input, $total_pads) {
+        $lines = explode("\n", $input);
+        $result = 0;
+        foreach ($lines as $input) {
+            $result += getTotal($input, $total_pads);
+        }
+        return $result;
+    }
+
+	function getTotal($input, $total_pads) {
 	
 		global $pad0;
 		$pad0 = [
@@ -32,12 +33,12 @@ ini_set('memory_limit', '2506M');
 		$pad1 = findShortestPaths($pad1);
 		
         $memory = [];
-        $count = countButtonPresses(str_split($input), 26, $pad0, $pad1, $memory);
+        $count = countButtonPresses(str_split($input), $total_pads, $pad0, $pad1, $memory, $total_pads);
         return $count * (int)$input;
         
     }
     
-    function countButtonPresses($input_arr, $level, $pad0, $pad1, &$memory) {
+    function countButtonPresses($input_arr, $level, $pad0, $pad1, &$memory, $max_level) {
         
         $cache_key = (implode('', $input_arr) . $level);
 
@@ -45,7 +46,7 @@ ini_set('memory_limit', '2506M');
             return $memory[$cache_key];
         }
         
-        $pad = $level == 26 ?$pad0 :$pad1;
+        $pad = $level == $max_level ?$pad0 :$pad1;
         $result = 0;
         for ($i = 0; $i < count($input_arr); $i++) {
             $key = ($input_arr[$i -1] ?? '#') . $input_arr[$i];
@@ -55,7 +56,7 @@ ini_set('memory_limit', '2506M');
                 $result += min(array_map("strlen", $possible_combinationsPressDirection));
             } else {
                 $min_press_direction = PHP_INT_MAX;
-                foreach ($possible_combinationsPressDirection as $p) $min_press_direction = min($min_press_direction, countButtonPresses(str_split($p), $level - 1, $pad0, $pad1, $memory));
+                foreach ($possible_combinationsPressDirection as $p) $min_press_direction = min($min_press_direction, countButtonPresses(str_split($p), $level - 1, $pad0, $pad1, $memory, $max_level));
                 $result += ($min_press_direction);
             }
         }
@@ -151,14 +152,22 @@ ini_set('memory_limit', '2506M');
 	
 function sample() {
 	return <<<EOD
-	980#
-	EOD;	
+    029#
+    980#
+    179#
+    456#
+    379#
+    EOD;	
 }
 
 function input() {
 	return <<<EOD
-	
-	EOD;	
+    129#
+    974#
+    805#
+    671#
+    386#
+    EOD;	
 }
 
 ?>
